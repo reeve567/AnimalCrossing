@@ -20,7 +20,6 @@ class Island(
 	private val world = Bukkit.getWorld("world")!!
 	
 	init {
-		println("[${location.x}, ${location.z}]")
 		if (nativeFruitType == null) {
 			nativeFruitType = FruitType.values().random()
 			findTrees()

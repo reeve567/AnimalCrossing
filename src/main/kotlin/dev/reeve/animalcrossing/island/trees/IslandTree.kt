@@ -5,6 +5,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.random.Random
 
 class IslandTree(
 		private val treeBase: IslandTreeLocation,
@@ -18,18 +19,18 @@ class IslandTree(
 	private var currentFruit = ArrayList<Location>()
 	
 	init {
-		println(treeBase)
 		loadFruit()
 	}
 	
 	private fun getBlocks(material: Material): ArrayList<Location> {
 		val blocks = ArrayList<Location>()
 		var notDone = true
-		var y = treeBase.y
+		var y = 0
 		while (notDone) {
 			y++
-			if (treeBase.block.getRelative(0, y, 0).type == Material.AIR)
+			if (treeBase.block.getRelative(0, y, 0).type == Material.AIR) {
 				notDone = false
+			}
 			for (x in -2..2) {
 				for (z in -2..2) {
 					val block = treeBase.block.getRelative(x, y, z)
@@ -67,8 +68,22 @@ class IslandTree(
 		}
 	}
 	
-	fun shakeTree() {
+	private fun replaceFruit(index: Int) {
+		currentFruit[index].block.type = Material.OAK_LEAVES
+		currentFruit.removeAt(index)
+	}
 	
+	fun shakeTree() {
+		val random = Random.nextInt(0,2)
+		when (random) {
+			0 -> {
+				//fruit
+				
+			}
+			1 -> {
+				//stick
+			}
+		}
 	}
 	
 	fun isTree(location: Location): Boolean {

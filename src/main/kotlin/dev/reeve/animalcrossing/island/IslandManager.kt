@@ -20,7 +20,7 @@ class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
 	private fun loadIslands() {
 		if (!folder.exists())
 			folder.mkdirs()
-		for (file in folder.listFiles()) {
+		for (file in folder.listFiles()!!) {
 			add(Gson().fromJson(FileReader(file), Island::class.java))
 		}
 	}
@@ -60,7 +60,7 @@ class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
 	 */
 	fun claimIsland(player: Player, x: Int, z: Int): Island? {
 		if (!hasIsland(player.uniqueId) && getIsland(x, z) == null) {
-			val island = Island(IslandLocation((x * islandSize) / islandSize, (z * islandSize) / islandSize), player.uniqueId)
+			val island = Island(IslandLocation( (x / islandSize) * islandSize, (z / islandSize) * islandSize), player.uniqueId)
 			add(island)
 			return island
 		}
