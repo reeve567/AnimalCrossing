@@ -2,6 +2,7 @@ main: dev.reeve.animalcrossing.AnimalCrossing
 name: AnimalCrossing
 version: 1.0
 api-version: 1.15
+load: POSTWORLD
 depend:
   - AnimalCrossingGenerator
 commands:

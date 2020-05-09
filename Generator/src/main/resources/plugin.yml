@@ -1,0 +1,5 @@
+main: dev.reeve.animalcrossing.generator.AnimalCrossingGenerator
+name: AnimalCrossingGenerator
+version: 1.0
+api-version: 1.15
+load: STARTUP
