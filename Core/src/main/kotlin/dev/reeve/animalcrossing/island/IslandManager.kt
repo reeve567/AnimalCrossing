@@ -8,6 +8,7 @@ import org.bukkit.Chunk
 import org.bukkit.entity.Player
 import java.io.File
 import java.io.FileReader
+import java.io.FileWriter
 import java.util.*
 
 class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
@@ -28,8 +29,11 @@ class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
 	 fun saveIslands() {
 		forEach {
 			val file = File(folder, "${it.islandId}.json")
-			file.createNewFile()
-			file.writeText(GsonBuilder().setPrettyPrinting().create().toJson(it))
+			if (!file.exists())
+				file.createNewFile()
+			val writer = FileWriter(file)
+			writer.write(GsonBuilder().setPrettyPrinting().create().toJson(it))
+			writer.close()
 		}
 	}
 	

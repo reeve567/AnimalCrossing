@@ -17,8 +17,9 @@ class Island(
 		val islandId: UUID = UUID.randomUUID()
 ) {
 	val trees = IslandTrees()
+	@Transient
 	private val world = Bukkit.getWorld("world")!!
-	
+
 	init {
 		if (nativeFruitType == null) {
 			nativeFruitType = FruitType.values().random()
@@ -39,7 +40,7 @@ class Island(
 							val block = chunk.getBlock(x, y + highest, z)
 							if (block.type == Material.OAK_LOG || block.type == Material.OAK_LEAVES) {
 								trees.add(IslandTree(
-										IslandTreeLocation((location.x + chunkX) * 16 + x, highest + y, (location.z + chunkZ) * 16 + z, world),
+										IslandTreeLocation((location.x + chunkX) * 16 + x, highest + y, (location.z + chunkZ) * 16 + z, world.name),
 										nativeFruitType!!
 								))
 								break@chunk

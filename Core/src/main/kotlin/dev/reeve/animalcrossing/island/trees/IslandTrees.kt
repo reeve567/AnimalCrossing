@@ -7,6 +7,7 @@ class IslandTrees : ArrayList<IslandTree>() {
 	fun shakeTree(location: Location) {
 		forEach { tree ->
 			if (tree.isTree(location)) {
+				println("tree")
 				tree.shakeTree()
 				return@forEach
 			}

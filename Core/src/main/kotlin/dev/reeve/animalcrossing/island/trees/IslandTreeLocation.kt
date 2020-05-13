@@ -1,12 +1,13 @@
 package dev.reeve.animalcrossing.island.trees
 
+import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.block.Block
 
-class IslandTreeLocation(var x: Int, var y: Int, var z: Int, private var world: World) {
+class IslandTreeLocation(var x: Int, var y: Int, var z: Int, private var world: String) {
 	val block: Block
 		get() : Block {
-			return world.getBlockAt(x, y, z)
+			return Bukkit.getWorld(world)!!.getBlockAt(x, y, z)
 		}
 	
 	override fun toString(): String {

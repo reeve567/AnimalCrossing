@@ -6,6 +6,7 @@ import dev.reeve.animalcrossing.handlers.TreeHandler
 import dev.reeve.animalcrossing.handlers.WalletHandler
 import dev.reeve.animalcrossing.island.IslandManager
 import org.bukkit.Bukkit
+import org.bukkit.Difficulty
 import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -22,11 +23,14 @@ class AnimalCrossing : JavaPlugin() {
         registerListeners(
             HoleHandler(),
             WalletHandler(),
-            JoinHandler(),
+            JoinHandler(this),
             TreeHandler(islandManager)
         )
 
         ClaimCommand(islandManager)
+
+        val world = Bukkit.getWorld("world")!!
+        world.difficulty = Difficulty.PEACEFUL
     }
 
     override fun onDisable() {
