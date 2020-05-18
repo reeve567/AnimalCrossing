@@ -20,6 +20,7 @@ class AnimalCrossing : JavaPlugin() {
     lateinit var schematicManager: SchematicManager
     lateinit var hologramManager: HologramManager
     lateinit var mainMenuManager: MainMenuManager
+    lateinit var settingsManager: SettingsManager
 
     companion object {
         lateinit var instance: AnimalCrossing
@@ -32,6 +33,7 @@ class AnimalCrossing : JavaPlugin() {
         schematicManager = SchematicManager(this)
         hologramManager = HologramManager(this)
         mainMenuManager = MainMenuManager(this)
+        settingsManager = SettingsManager(this)
 
         registerListeners(
             HoleHandler(),
@@ -45,11 +47,11 @@ class AnimalCrossing : JavaPlugin() {
         )
 
         ClaimCommand(islandManager)
-        MusicCommand(islandManager)
+        MusicCommand(settingsManager)
         SchematicCommand(schematicManager)
 
-        val world = Bukkit.getWorld("world")!!
-        world.difficulty = Difficulty.PEACEFUL
+        Settings.world.difficulty = Difficulty.PEACEFUL
+        Settings.world.worldBorder.reset()
     }
 
     override fun onDisable() {

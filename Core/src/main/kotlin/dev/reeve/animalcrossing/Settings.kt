@@ -4,7 +4,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 
 object Settings {
-    private val world = Bukkit.getWorld("world")!!
+    val world = Bukkit.getWorld("world")!!
     object MainMenu {
         val location = Location(world, -500.0, 100.0, -500.0, 90f, 0f)
         val pointOne = Location(world, -502.5, 100.0, -499.5, -90f, 0f)

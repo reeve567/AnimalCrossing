@@ -10,11 +10,10 @@ class MusicManager(animalCrossing: AnimalCrossing) {
 
     init {
         for (player in Bukkit.getOnlinePlayers()) {
-            val island = animalCrossing.islandManager[player.uniqueId]
-            if (island != null && island.musicToggled)
-                theme.addPlayer(player)
-            else
-                theme.addPlayer(player)
+            val settings = animalCrossing.settingsManager[player.uniqueId]
+            if (settings != null) {
+                if (settings.music) theme.addPlayer(player)
+            } else theme.addPlayer(player)
         }
     }
 

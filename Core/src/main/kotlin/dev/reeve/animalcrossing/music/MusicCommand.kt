@@ -1,14 +1,13 @@
 package dev.reeve.animalcrossing.music
 
-import dev.reeve.animalcrossing.AnimalCrossing
-import dev.reeve.animalcrossing.island.IslandManager
+import dev.reeve.animalcrossing.SettingsManager
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
-class MusicCommand(private val islandManager: IslandManager) : CommandExecutor {
+class MusicCommand(private val settingsManager: SettingsManager) : CommandExecutor {
     init {
         Bukkit.getPluginCommand("music")?.setExecutor(this)
     }
@@ -17,10 +16,10 @@ class MusicCommand(private val islandManager: IslandManager) : CommandExecutor {
         if (sender !is Player) {
             return false
         }
-        val island = islandManager[sender.uniqueId]
-        if (island != null) {
-            island.musicToggled = !island.musicToggled
-            when (island.musicToggled) {
+        val playerSettings = settingsManager[sender.uniqueId]
+        if (playerSettings != null) {
+            playerSettings.music = !playerSettings.music
+            when (playerSettings.music) {
                 true -> {
                     sender.sendMessage("§6Music toggled on")
                 }
@@ -29,6 +28,6 @@ class MusicCommand(private val islandManager: IslandManager) : CommandExecutor {
                 }
             }
         }
-        return false
+        return true
     }
 }

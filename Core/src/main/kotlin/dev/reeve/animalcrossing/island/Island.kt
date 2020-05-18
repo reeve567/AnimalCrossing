@@ -3,6 +3,10 @@ package dev.reeve.animalcrossing.island
 import com.okkero.skedule.schedule
 import dev.reeve.animalcrossing.AnimalCrossing
 import dev.reeve.animalcrossing.PlayerLocation
+import dev.reeve.animalcrossing.Settings
+import dev.reeve.animalcrossing.Tools
+import dev.reeve.animalcrossing.extensions.isInMainMenuMode
+import dev.reeve.animalcrossing.extensions.isInSearchMode
 import dev.reeve.animalcrossing.generator.islandSize
 import dev.reeve.animalcrossing.island.trees.FruitType
 import dev.reeve.animalcrossing.island.trees.IslandTree
@@ -11,6 +15,8 @@ import dev.reeve.animalcrossing.island.trees.IslandTrees
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import java.util.*
 
 class Island(
@@ -23,30 +29,47 @@ class Island(
     var bells = 0
     var playerLocation = PlayerLocation(0.0, 0.0, 0.0)
     var showMainMenu = true
-    var musicToggled = true
-        set(value) {
-            field = value
-            if (value) {
-                if (AnimalCrossing.instance.musicManager != null)
-                    AnimalCrossing.instance.musicManager.addPlayer(owner)
-            } else {
-                if (AnimalCrossing.instance.musicManager != null)
-                    AnimalCrossing.instance.musicManager.removePlayer(owner)
-            }
-        }
+    var inventory = Array<ItemStack?>(36) { null }
+    var armor = Array<ItemStack?>(4) { null }
 
     @Transient
     private val world = Bukkit.getWorld("world")!!
 
     init {
+        kickOffPlayers()
         if (nativeFruitType == null) {
             nativeFruitType = FruitType.values().random()
             findTrees()
         }
+        loadInventory()
+    }
+
+    fun teleportToLastLocation() {
+        getOwnerPlayer()?.teleport(
+            Location(
+                Settings.world,
+                playerLocation.x,
+                playerLocation.y,
+                playerLocation.z
+            )
+        )
+    }
+
+    private fun kickOffPlayers() {
+        for (player in Bukkit.getOnlinePlayers()) {
+            if (isOnIsland(player.location)) {
+                if (player.uniqueId != owner) {
+                    if (player.isInSearchMode()) {
+                        AnimalCrossing.instance.islandManager.teleportToUnclaimedIsland(player)
+                    } else if (player.isInMainMenuMode()) {
+                        player.teleport(Settings.MainMenu.location)
+                    }
+                }
+            }
+        }
     }
 
     private fun findTrees() {
-
         Bukkit.getScheduler().schedule(AnimalCrossing.instance) {
             val time = System.currentTimeMillis()
             for (chunkX in 0 until islandSize) {
@@ -104,5 +127,27 @@ class Island(
 
     fun isOnIsland(location: Location): Boolean {
         return isIsland(location.chunk.x, location.chunk.z)
+    }
+
+    fun loadInventory() {
+        inventory.forEachIndexed { index, itemStack ->
+            if (index != Tools.walletSlot)
+                getOwnerPlayer()?.inventory?.setItem(index, itemStack)
+        }
+        getOwnerPlayer()?.inventory?.setArmorContents(armor)
+    }
+
+    fun saveInventory() {
+        for (i in 0 until 36) {
+            if (i != Tools.walletSlot)
+                getOwnerPlayer()?.inventory?.contents?.also {
+                    inventory[i] = it[i]
+                }
+        }
+        armor = getOwnerPlayer()?.inventory?.armorContents as Array<ItemStack?>
+    }
+
+    private fun getOwnerPlayer(): Player? {
+        return Bukkit.getPlayer(owner)
     }
 }

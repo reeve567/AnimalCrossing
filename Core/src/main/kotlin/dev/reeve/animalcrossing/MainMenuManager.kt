@@ -1,16 +1,13 @@
 package dev.reeve.animalcrossing
 
-import com.okkero.skedule.schedule
 import dev.reeve.animalcrossing.dsl.skull
+import dev.reeve.animalcrossing.extensions.setNormalMode
+import dev.reeve.animalcrossing.extensions.setSearchMode
 import dev.reeve.animalcrossing.hologram.ClientSideHologram
-import org.bukkit.Bukkit
-import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.event.player.PlayerTeleportEvent
-import org.bukkit.metadata.FixedMetadataValue
 
 class MainMenuManager(private val animalCrossing: AnimalCrossing) : Listener {
     init {
@@ -29,16 +26,6 @@ class MainMenuManager(private val animalCrossing: AnimalCrossing) : Listener {
     }
 
     fun onJoin(player: Player, move: Boolean = true) {
-        if (move) {
-            Bukkit.getScheduler().schedule(animalCrossing) {
-                waitFor(2)
-                player.teleport(
-                    Settings.MainMenu.location.clone().add(0.5, 0.0, 0.5),
-                    PlayerTeleportEvent.TeleportCause.PLUGIN
-                )
-            }
-            player.setMetadata("mainMenu", FixedMetadataValue(animalCrossing, true))
-        }
         val island = animalCrossing.islandManager[player.uniqueId]
         if (island != null) {
             animalCrossing.hologramManager.addHolograms(
@@ -48,7 +35,8 @@ class MainMenuManager(private val animalCrossing: AnimalCrossing) : Listener {
                     Settings.MainMenu.pointOne,
                     skull(Settings.HeadValues.tomNook)
                 ) {
-
+                    island.teleportToLastLocation()
+                    player.setNormalMode()
                 }
             )
         } else {
@@ -59,7 +47,8 @@ class MainMenuManager(private val animalCrossing: AnimalCrossing) : Listener {
                     Settings.MainMenu.pointOne,
                     skull(Settings.HeadValues.tomNook)
                 ) {
-
+                    animalCrossing.islandManager.teleportToUnclaimedIsland(player)
+                    player.setSearchMode()
                 }
             )
         }
