@@ -10,8 +10,9 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.util.*
+import kotlin.collections.HashMap
 
-class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
+class IslandManager(animalCrossing: AnimalCrossing) : HashMap<UUID, Island>() {
 	private val folder = File(animalCrossing.dataFolder, "islands")
 	
 	init {
@@ -22,17 +23,18 @@ class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
 		if (!folder.exists())
 			folder.mkdirs()
 		for (file in folder.listFiles()!!) {
-			add(Gson().fromJson(FileReader(file), Island::class.java))
+			val island = Gson().fromJson(FileReader(file), Island::class.java)
+			put(island.owner, island)
 		}
 	}
 	
 	 fun saveIslands() {
 		forEach {
-			val file = File(folder, "${it.islandId}.json")
+			val file = File(folder, "${it.value.islandId}.json")
 			if (!file.exists())
 				file.createNewFile()
 			val writer = FileWriter(file)
-			writer.write(GsonBuilder().setPrettyPrinting().create().toJson(it))
+			writer.write(GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create().toJson(it.value))
 			writer.close()
 		}
 	}
@@ -43,19 +45,9 @@ class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
 	 * @return island which may or may not exist
 	 */
 	fun getIsland(x: Int, z: Int): Island? {
-		return firstOrNull { island ->
+		return values.firstOrNull { island ->
 			island.isIsland(x, z)
 		}
-	}
-	
-	fun getIsland(uuid: UUID): Island? {
-		return firstOrNull {
-			it.islandId == uuid
-		}
-	}
-	
-	fun hasIsland(uuid: UUID): Boolean {
-		return firstOrNull { it.owner == uuid } != null
 	}
 	
 	/**
@@ -63,9 +55,9 @@ class IslandManager(animalCrossing: AnimalCrossing) : ArrayList<Island>() {
 	 * @param z see above
 	 */
 	fun claimIsland(player: Player, x: Int, z: Int): Island? {
-		if (!hasIsland(player.uniqueId) && getIsland(x, z) == null) {
+		if (!containsKey(player.uniqueId) && getIsland(x, z) == null) {
 			val island = Island(IslandLocation( (x / islandSize) * islandSize, (z / islandSize) * islandSize), player.uniqueId)
-			add(island)
+			put(player.uniqueId, island)
 			return island
 		}
 		return null

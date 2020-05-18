@@ -1,21 +1,29 @@
 package dev.reeve.animalcrossing.extensions
 
 import dev.reeve.animalcrossing.Tools
+import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.meta.tags.ItemTagType
 
-fun Player.getWalletBalance() : Int {
-	val wallet = inventory.getItem(Tools.walletSlot)
-	if (hasWallet())
-		return wallet!!.itemMeta!!.customTagContainer.getCustomTag(Tools.walletKey, ItemTagType.INTEGER)!!
-	else setWallet()
-	return 0;
+fun Player.getWalletBalance(): Int {
+    val wallet = inventory.getItem(Tools.walletSlot)
+    if (hasWallet())
+        return wallet!!.itemMeta!!.customTagContainer.getCustomTag(Tools.walletKey, ItemTagType.INTEGER)!!
+    else setWallet()
+    return 0
 }
 
-fun Player.hasWallet() : Boolean {
-	return inventory.getItem(Tools.walletSlot).isWallet()
+fun Player.hasWallet(): Boolean {
+    return inventory.getItem(Tools.walletSlot).isWallet()
 }
 
 fun Player.setWallet() {
-	inventory.setItem(Tools.walletSlot, Tools.wallet)
+    inventory.setItem(Tools.walletSlot, Tools.wallet)
+}
+
+fun Player.isLookingAtArmorStand(entity: LivingEntity): Boolean {
+    return world.rayTraceEntities(eyeLocation, eyeLocation.direction, 4.00) { it is ArmorStand }?.hitEntity.let {
+        it != null && it.uniqueId == entity.uniqueId
+    }
 }

@@ -1,6 +1,7 @@
 package dev.reeve.animalcrossing.handlers
 
 import dev.reeve.animalcrossing.island.IslandManager
+import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -14,7 +15,7 @@ class TreeHandler(private val islandManager: IslandManager) : Listener {
 	@EventHandler
 	fun onInteract(e: PlayerInteractEvent) {
 		if (e.action == Action.RIGHT_CLICK_BLOCK) {
-			if (!e.hasItem()) {
+			if (!e.hasItem() && e.clickedBlock!!.type == Material.OAK_LOG) {
 				println("shake")
 				islandManager.getIsland(e.clickedBlock!!.chunk)?.trees?.shakeTree(e.clickedBlock!!.location)
 			}
