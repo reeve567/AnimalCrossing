@@ -1,8 +1,6 @@
 package dev.reeve.animalcrossing.hologram
 
 import com.okkero.skedule.BukkitSchedulerController
-import dev.reeve.animalcrossing.AnimalCrossing
-import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.EntityType
@@ -10,15 +8,25 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.inventory.ItemStack
+import java.util.*
 
-open class Hologram(text: String, location: Location, helmet: ItemStack? = null, marker: Boolean = true) : Listener {
-    protected val armorStand = location.world!!.spawnEntity(location, EntityType.ARMOR_STAND) as ArmorStand
-    val uuid = armorStand.uniqueId
+open class Hologram(text: String, location: Location, helmet: ItemStack? = null, marker: Boolean = true, val register: Boolean = true) : Listener {
+    protected val armorStand: ArmorStand
+    val uuid: UUID
 
     init {
+        if (!location.chunk.isForceLoaded) {
+            location.chunk.load()
+            location.chunk.isForceLoaded = true
+        }
+
+        armorStand = location.world!!.spawnEntity(location, EntityType.ARMOR_STAND) as ArmorStand
+        uuid = armorStand.uniqueId
+
         if (marker)
             armorStand.isMarker = true
         armorStand.isVisible = false
+        armorStand.isPersistent = false
         armorStand.setBasePlate(false)
         armorStand.isCustomNameVisible = true
         armorStand.customName = text
@@ -33,6 +41,8 @@ open class Hologram(text: String, location: Location, helmet: ItemStack? = null,
     }
 
     open fun destroy() {
+        if (!armorStand.location.chunk.isLoaded)
+            armorStand.location.chunk.load()
         armorStand.remove()
         PlayerInteractAtEntityEvent.getHandlerList().unregister(this)
     }

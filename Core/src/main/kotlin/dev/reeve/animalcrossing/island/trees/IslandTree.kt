@@ -25,10 +25,14 @@ class IslandTree(
 ) {
     private val maxFruit = 3
     private val maxSticks = 16
+    private var lowestLeaves = 255
 
     @Transient
     private var currentFruit: ArrayList<Location> = ArrayList()
-    private var lowestLeaves = 255
+
+    @Transient
+    private var lastUsed = 0L
+
 
     init {
         generateFruit()
@@ -62,6 +66,9 @@ class IslandTree(
     }
 
     private fun loadFruit() {
+        if (currentFruit == null)
+            currentFruit = ArrayList()
+
         if (currentFruit.isEmpty())
             currentFruit.addAll(getBlocks(fruitType.material))
     }
@@ -103,6 +110,10 @@ class IslandTree(
     }
 
     fun shakeTree() {
+        if (Date().time - lastUsed < TickToTime.getTicks(0, 0, 0, 3)) {
+            return
+        }
+
         fun dropLocation(): Location {
             var x: Int
             var z: Int
@@ -141,6 +152,7 @@ class IslandTree(
             }
         }
         treeBase.block.world.playSound(treeBase.block.location.up().up(), Sound.BLOCK_GRASS_PLACE, 1.0f, .75f)
+        lastUsed = Date().time
     }
 
     fun isTree(location: Location): Boolean {

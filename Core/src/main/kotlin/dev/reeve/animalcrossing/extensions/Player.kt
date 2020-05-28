@@ -2,6 +2,7 @@ package dev.reeve.animalcrossing.extensions
 
 import dev.reeve.animalcrossing.AnimalCrossing
 import dev.reeve.animalcrossing.PlayerLocation
+import dev.reeve.animalcrossing.Settings
 import dev.reeve.animalcrossing.Tools
 import dev.reeve.animalcrossing.dsl.clickableItem
 import dev.reeve.animalcrossing.dsl.item
@@ -45,7 +46,7 @@ fun Player.setSearchMode() {
     if (isInMainMenuMode()) {
         removeMetadata("mainMenu", AnimalCrossing.instance)
     }
-    addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, Int.MAX_VALUE, 1, false, false, false))
+    addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, Int.MAX_VALUE, 0, false, false, false))
 
     allowFlight = true
     setMetadata("searchMode", FixedMetadataValue(AnimalCrossing.instance, true))
@@ -54,14 +55,16 @@ fun Player.setSearchMode() {
         itemMeta {
             setDisplayName("§aAccept")
         }
-    }, this) {
+    }, this, "accept") {
+        player.inventory.clear()
+        player.setNormalMode()
         AnimalCrossing.instance.islandManager.claimIsland(this@setSearchMode, player.location.chunk)
     })
     inventory.setItem(8, clickableItem(item(Material.RED_WOOL) {
         itemMeta {
             setDisplayName("§cNext")
         }
-    }, this) {
+    }, this, "next") {
         AnimalCrossing.instance.islandManager.teleportToUnclaimedIsland(this@setSearchMode)
         setCooldown(Material.RED_WOOL, 100)
     })
@@ -85,7 +88,9 @@ fun Player.setNormalMode() {
 
 fun Player.setMainMenuMode() {
     setMetadata("mainMenu", FixedMetadataValue(AnimalCrossing.instance, true))
-    addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, Int.MAX_VALUE, 1, false, false, false))
+    addPotionEffect(PotionEffect(PotionEffectType.INVISIBILITY, Int.MAX_VALUE, 0, false, false, false))
+    setWorldBorders(2000.0, PlayerLocation.fromLocation(Settings.MainMenu.location))
+    inventory.clear()
 }
 
 fun Player.isInMainMenuMode(): Boolean {

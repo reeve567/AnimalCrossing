@@ -1,6 +1,6 @@
 package dev.reeve.animalcrossing
 
-import com.okkero.skedule.schedule
+import dev.reeve.animalcrossing.debug.DebugManager
 import dev.reeve.animalcrossing.handlers.*
 import dev.reeve.animalcrossing.hologram.HologramManager
 import dev.reeve.animalcrossing.island.ClaimCommand
@@ -21,6 +21,7 @@ class AnimalCrossing : JavaPlugin() {
     lateinit var hologramManager: HologramManager
     lateinit var mainMenuManager: MainMenuManager
     lateinit var settingsManager: SettingsManager
+    lateinit var debugManager: DebugManager
 
     companion object {
         lateinit var instance: AnimalCrossing
@@ -28,12 +29,13 @@ class AnimalCrossing : JavaPlugin() {
 
     override fun onEnable() {
         instance = this
+        debugManager = DebugManager(this)
         islandManager = IslandManager(this)
+        settingsManager = SettingsManager(this)
         musicManager = MusicManager(this)
         schematicManager = SchematicManager(this)
         hologramManager = HologramManager(this)
         mainMenuManager = MainMenuManager(this)
-        settingsManager = SettingsManager(this)
 
         registerListeners(
             HoleHandler(),
@@ -49,6 +51,7 @@ class AnimalCrossing : JavaPlugin() {
         ClaimCommand(islandManager)
         MusicCommand(settingsManager)
         SchematicCommand(schematicManager)
+        TestCommand(this)
 
         Settings.world.difficulty = Difficulty.PEACEFUL
         Settings.world.worldBorder.reset()

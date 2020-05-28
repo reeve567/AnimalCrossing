@@ -5,10 +5,7 @@ import dev.reeve.animalcrossing.AnimalCrossing
 import dev.reeve.animalcrossing.PlayerLocation
 import dev.reeve.animalcrossing.Settings
 import dev.reeve.animalcrossing.Tools
-import dev.reeve.animalcrossing.extensions.getWalletBalance
-import dev.reeve.animalcrossing.extensions.isInMainMenuMode
-import dev.reeve.animalcrossing.extensions.isInSearchMode
-import dev.reeve.animalcrossing.extensions.setMainMenuMode
+import dev.reeve.animalcrossing.extensions.*
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
@@ -16,8 +13,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import java.util.*
+import kotlin.collections.HashMap
 
 class JoinLeaveHandler(private val animalCrossing: AnimalCrossing) : Listener {
+    private val mainMenuMap = HashMap<Int, UUID>()
+
     @EventHandler
     fun onJoin(e: PlayerJoinEvent) {
         e.player.getWalletBalance()
@@ -34,8 +35,10 @@ class JoinLeaveHandler(private val animalCrossing: AnimalCrossing) : Listener {
             if (!island.showMainMenu) {
                 island.loadInventory()
                 island.teleportToLastLocation()
+                e.player.setNormalMode()
                 return
             }
+            island.onJoin(e.player)
         }
 
         Bukkit.getScheduler().schedule(animalCrossing) {

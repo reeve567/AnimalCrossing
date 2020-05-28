@@ -12,4 +12,8 @@ class IslandLocation(val x: Int, val z: Int) {
 		result = 31 * result + z
 		return result
 	}
+
+	override fun toString(): String {
+		return "IslandLocation(x=$x, z=$z)"
+	}
 }

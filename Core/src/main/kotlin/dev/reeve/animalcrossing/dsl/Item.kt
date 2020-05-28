@@ -5,6 +5,7 @@ import com.mojang.authlib.properties.Property
 import dev.reeve.animalcrossing.AnimalCrossing
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -15,27 +16,38 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
+import org.bukkit.inventory.meta.tags.ItemTagType
 import java.util.*
 import kotlin.collections.HashMap
 
-val clickableItemListeners = HashMap<UUID, Listener>()
+val clickableItemListeners = HashMap<Pair<UUID, String>, Listener>()
 
 fun item(material: Material, block: ItemStack.() -> Unit): ItemStack = ItemStack(material).apply(block)
 
 fun item(item: ItemStack, block: ItemStack.() -> Unit): ItemStack = item.apply(block)
 
-fun clickableItem(item: ItemStack, player: Player, block: PlayerInteractEvent.() -> Unit): ItemStack {
-    if (!clickableItemListeners.contains(player.uniqueId)) {
-        clickableItemListeners[player.uniqueId] = object : Listener {
+fun clickableItem(item: ItemStack, player: Player, tool: String, block: PlayerInteractEvent.() -> Unit): ItemStack {
+    val key = NamespacedKey(AnimalCrossing.instance, "clickableitem")
+    if (!clickableItemListeners.contains(player.uniqueId to tool)) {
+        clickableItemListeners[player.uniqueId to tool] = object : Listener {
             init {
                 Bukkit.getPluginManager().registerEvents(this, AnimalCrossing.instance)
             }
 
+            private fun hasTag(item: ItemStack): Boolean {
+                return item.hasItemMeta() && item.itemMeta!!.customTagContainer.hasCustomTag(
+                    key,
+                    ItemTagType.STRING
+                ) && item.itemMeta!!.customTagContainer.getCustomTag(key, ItemTagType.STRING).equals(tool)
+            }
+
             @EventHandler
             fun onInteract(e: PlayerInteractEvent) {
-                if (e.hasItem() && e.item!!.hashCode() == item.hashCode() && e.player.uniqueId == player.uniqueId) {
-                    block.invoke(e)
-                    e.isCancelled = true
+                if (e.hasItem() && hasTag(e.item!!) && !e.player.hasCooldown(e.item!!.type)) {
+                    if (e.player.uniqueId == player.uniqueId) {
+                        block.invoke(e)
+                        e.isCancelled = true
+                    }
                 }
             }
 
@@ -54,7 +66,15 @@ fun clickableItem(item: ItemStack, player: Player, block: PlayerInteractEvent.()
             }
         }
     }
-    return item
+    return item(item) {
+        itemMeta {
+            customTagContainer.setCustomTag(
+                key,
+                ItemTagType.STRING,
+                tool
+            )
+        }
+    }
 }
 
 fun skull(value: String): ItemStack {
